@@ -19,7 +19,7 @@ function About() {
 
       <section className="mx-auto max-w-5xl px-4 py-16 space-y-12">
         <div className="grid lg:grid-cols-2 gap-10 items-center">
-          <img src="/generated-jackets/ft-020-2.svg" alt="Luxury quilted leather jacket" className="rounded-3xl shadow-luxury w-full" />
+          <img src="/jackets/ft-020-2.jpg" alt="Luxury quilted leather jacket" className="rounded-3xl shadow-luxury w-full" />
           <div className="space-y-4">
             <h2 className="text-3xl">A house, not a label.</h2>
             <p className="text-muted-foreground leading-relaxed">Favorite Trading INC was founded by a small team of pattern-makers, leather artisans, and denim specialists who believed that outerwear deserved the same reverence as couture. We chose Brooklyn because the borough's energy — restless, generous, defiantly creative — became the soul of every collection.</p>

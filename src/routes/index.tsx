@@ -17,7 +17,7 @@ function Home() {
         {/* Animated zoom background (cinematic) */}
         <div className="absolute inset-0">
           <img
-            src="/generated-jackets/ft-011-1.svg"
+            src="/jackets/ft-011-1.jpg"
             alt=""
             className="absolute inset-0 w-full h-full object-cover animate-zoom-bg"
           />
@@ -60,10 +60,10 @@ function Home() {
           </div>
           <div className="hidden lg:block relative h-[560px] reveal" style={{ animationDelay: "200ms" }}>
             <div className="absolute top-0 right-0 w-72 h-96 rounded-3xl overflow-hidden shadow-luxury animate-float">
-              <img src="/generated-jackets/ft-001-1.svg" alt="Men's denim jacket" className="w-full h-full object-cover" />
+              <img src="/jackets/ft-001-1.jpg" alt="Men's denim jacket" className="w-full h-full object-cover" />
             </div>
             <div className="absolute bottom-0 left-0 w-64 h-80 rounded-3xl overflow-hidden shadow-luxury animate-float-slow" style={{ animationDelay: "1s" }}>
-              <img src="/generated-jackets/ft-016-1.svg" alt="Women's leather jacket" className="w-full h-full object-cover" />
+              <img src="/jackets/ft-016-1.jpg" alt="Women's leather jacket" className="w-full h-full object-cover" />
             </div>
             <div className="absolute top-32 left-8 glass rounded-2xl p-4 w-48 animate-float" style={{ animationDelay: "2s" }}>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground">New drop</div>
@@ -97,10 +97,10 @@ function Home() {
         <SectionHead eyebrow="Collections" title="Four signatures, infinite stories" />
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
           {[
-            { cat: "mens-denim", title: "Men's Denim Jackets", img: "/generated-jackets/ft-001-2.svg" },
-            { cat: "womens-denim", title: "Women's Denim Jackets", img: "/generated-jackets/ft-006-2.svg" },
-            { cat: "mens-leather", title: "Men's Leather Jackets", img: "/generated-jackets/ft-011-2.svg" },
-            { cat: "womens-leather", title: "Women's Leather Jackets", img: "/generated-jackets/ft-016-2.svg" },
+            { cat: "mens-denim", title: "Men's Denim Jackets", img: "/jackets/ft-001-2.jpg" },
+            { cat: "womens-denim", title: "Women's Denim Jackets", img: "/jackets/ft-006-2.jpg" },
+            { cat: "mens-leather", title: "Men's Leather Jackets", img: "/jackets/ft-011-2.jpg" },
+            { cat: "womens-leather", title: "Women's Leather Jackets", img: "/jackets/ft-016-2.jpg" },
           ].map((c) => (
             <Link key={c.cat} to="/shop" search={{ cat: c.cat } as any} className="group relative aspect-[3/4] rounded-3xl overflow-hidden shadow-luxury">
               <img src={c.img} alt={c.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -127,7 +127,7 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-[4/5] rounded-3xl overflow-hidden shadow-luxury reveal">
-            <img src="/generated-jackets/ft-008-3.svg" alt="Embellished denim jacket" className="w-full h-full object-cover" />
+            <img src="/jackets/ft-008-3.jpg" alt="Embellished denim jacket" className="w-full h-full object-cover" />
             <div className="absolute bottom-6 left-6 glass-dark rounded-2xl p-4">
               <div className="text-xs uppercase tracking-widest text-white/70">Est. June 2026</div>
               <div className="text-white">750 Manhattan Ave · Brooklyn</div>
