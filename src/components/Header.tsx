@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Heart, Search, ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import { Logo } from "./Logo";
@@ -20,6 +20,7 @@ const shopDropdown = [
 
 export function Header() {
   const { cartCount, setCartOpen, wishlist } = useShop();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [q, setQ] = useState("");
@@ -53,21 +54,21 @@ export function Header() {
               <div key={n.label} className="relative group">
                 <Link
                   to={n.to as any}
-                  className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary transition relative inline-flex items-center gap-1"
+                  className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary focus:text-primary transition relative inline-flex items-center gap-1 py-7 outline-none"
                 >
                   {n.label}
-                  {n.hasDropdown && <ChevronDown className="w-3 h-3" />}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-aqua to-primary group-hover:w-full transition-all duration-300" />
+                  {n.hasDropdown && <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />}
+                  <span className="absolute bottom-5 left-0 w-0 h-0.5 bg-gradient-to-r from-aqua to-primary group-hover:w-full group-focus-within:w-full transition-all duration-300" />
                 </Link>
                 {n.hasDropdown && (
-                  <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="glass rounded-2xl border border-white/40 shadow-luxury py-2 min-w-[240px]">
+                  <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%-0.5rem)] pt-3 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 transition-all duration-200 z-50">
+                    <div className="glass rounded-2xl border border-white/60 shadow-luxury py-2 min-w-[270px] overflow-hidden">
                       {shopDropdown.map((d) => (
                         <Link
                           key={d.label}
                           to={d.to}
                           search={d.search as any}
-                          className="block px-5 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-white/40 transition"
+                          className="block px-6 py-3 text-sm text-foreground/80 hover:text-primary hover:bg-white/50 focus:bg-white/50 focus:text-primary outline-none transition"
                         >
                           {d.label}
                         </Link>
@@ -96,7 +97,7 @@ export function Header() {
               className="mx-auto max-w-3xl px-4 py-3 flex gap-2"
               onSubmit={(e) => {
                 e.preventDefault();
-                window.location.href = `/shop?q=${encodeURIComponent(q)}`;
+                navigate({ to: "/shop", search: { q: q || undefined } });
               }}
             >
               <input
@@ -122,7 +123,18 @@ export function Header() {
               <button onClick={() => setOpen(false)}><X className="w-5 h-5" /></button>
             </div>
             {nav.map((n) => (
-              <Link key={n.label} to={n.to as any} onClick={() => setOpen(false)} className="py-3 border-b border-border text-foreground hover:text-primary">{n.label}</Link>
+              <div key={n.label} className="border-b border-border">
+                <Link to={n.to as any} onClick={() => setOpen(false)} className="block py-3 text-foreground hover:text-primary">{n.label}</Link>
+                {n.hasDropdown && (
+                  <div className="pb-3 pl-4 space-y-1">
+                    {shopDropdown.map((d) => (
+                      <Link key={d.label} to={d.to} search={d.search as any} onClick={() => setOpen(false)} className="block py-2 text-sm text-muted-foreground hover:text-primary">
+                        {d.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
