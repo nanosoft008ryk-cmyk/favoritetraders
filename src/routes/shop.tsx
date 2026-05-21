@@ -1,10 +1,11 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search as SearchIcon, SlidersHorizontal } from "lucide-react";
 import { products, categories } from "@/data/products";
 import { ProductCard } from "@/components/ProductCard";
 
 type ShopSearch = { cat?: string; q?: string; sort?: string };
+const categoryIds = new Set(categories.map((c) => c.id));
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (s: Record<string, unknown>): ShopSearch => ({
@@ -17,13 +18,23 @@ export const Route = createFileRoute("/shop")({
 });
 
 function Shop() {
-  const search = useSearch({ from: "/shop" });
-  const [cat, setCat] = useState<string>(search.cat ?? "all");
-  const [q, setQ] = useState<string>(search.q ?? "");
-  const [sort, setSort] = useState<string>(search.sort ?? "featured");
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: "/shop" });
+  const cat = search.cat && categoryIds.has(search.cat) ? search.cat : "all";
+  const q = search.q ?? "";
+  const sort = search.sort ?? "featured";
   const [priceMax, setPriceMax] = useState<number>(1200);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const setShopSearch = (next: Partial<ShopSearch>) => {
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        ...next,
+      }),
+    });
+  };
 
   const allTags = Array.from(new Set(products.flatMap((p) => p.tags)));
 
@@ -61,7 +72,7 @@ function Shop() {
         {/* Category Tabs */}
         <div className="flex flex-wrap gap-2 mb-6">
           {categories.map((c) => (
-            <button key={c.id} onClick={() => setCat(c.id)} className={`px-5 py-2.5 rounded-full text-sm transition-all duration-300 ${cat === c.id ? "bg-gradient-ocean text-white shadow-luxury" : "glass hover:scale-105"}`}>
+            <button key={c.id} onClick={() => setShopSearch({ cat: c.id === "all" ? undefined : c.id })} className={`px-5 py-2.5 rounded-full text-sm transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${cat === c.id ? "bg-gradient-ocean text-white shadow-luxury" : "glass hover:scale-105"}`}>
               {c.label}
             </button>
           ))}
@@ -71,9 +82,9 @@ function Shop() {
         <div className="flex flex-wrap items-center gap-3 mb-8 glass rounded-2xl p-3">
           <div className="flex items-center gap-2 flex-1 min-w-[200px]">
             <SearchIcon className="w-4 h-4 text-muted-foreground ml-2" />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search products…" className="flex-1 bg-transparent px-2 py-2 focus:outline-none text-sm" />
+            <input value={q} onChange={(e) => setShopSearch({ q: e.target.value || undefined })} placeholder="Search products…" className="flex-1 bg-transparent px-2 py-2 focus:outline-none text-sm" />
           </div>
-          <select value={sort} onChange={(e) => setSort(e.target.value)} className="bg-white/60 rounded-full px-4 py-2 text-sm border border-border focus:outline-none">
+          <select value={sort} onChange={(e) => setShopSearch({ sort: e.target.value })} className="bg-white/60 rounded-full px-4 py-2 text-sm border border-border focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
             <option value="featured">Featured</option>
             <option value="newest">Newest</option>
             <option value="price-asc">Price · Low to High</option>
@@ -104,7 +115,7 @@ function Shop() {
                   })}
                 </div>
               </div>
-              <button onClick={() => { setCat("all"); setQ(""); setSort("featured"); setPriceMax(1200); setTagFilter([]); }} className="text-xs text-primary hover:underline">Reset filters</button>
+              <button onClick={() => { navigate({ search: {} }); setPriceMax(1200); setTagFilter([]); }} className="text-xs text-primary hover:underline">Reset filters</button>
             </div>
           </aside>
 
