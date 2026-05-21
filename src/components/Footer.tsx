@@ -49,9 +49,9 @@ export function Footer() {
               Hand-finished luxury outerwear, crafted in Brooklyn for the modern world. Each piece tells the story of a city that never stops creating.
             </p>
             <div className="space-y-2 text-sm text-white/80">
-              <div className="flex items-start gap-2"><MapPin className="w-4 h-4 mt-0.5 shrink-0" /> 750 Manhattan Ave, Unit 2nd Fl, Brooklyn, NY 11222</div>
-              <div className="flex items-center gap-2"><Mail className="w-4 h-4" /> hello@favoritetradinginc.com</div>
-              <div className="flex items-center gap-2"><Phone className="w-4 h-4" /> +1 (718) 555-0142</div>
+              <div className="flex items-start gap-2"><MapPin className="w-4 h-4 mt-0.5 shrink-0" /><span>750 Manhattan Ave, Unit 2nd Fl, Brooklyn, NY 11222</span></div>
+              <div className="flex items-center gap-2"><Mail className="w-4 h-4" /><span>hello@favoritetradinginc.com</span></div>
+              <div className="flex items-center gap-2"><Phone className="w-4 h-4" /><span>+1 (718) 555-0142</span></div>
             </div>
             <div className="flex gap-3">
               {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
