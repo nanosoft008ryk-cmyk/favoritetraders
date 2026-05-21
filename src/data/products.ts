@@ -420,10 +420,10 @@ export const products: Product[] = [
 
 export const categories = [
   { id: "all", label: "All Collections" },
-  { id: "mens-denim", label: "Men's Denim" },
-  { id: "womens-denim", label: "Women's Denim" },
-  { id: "mens-leather", label: "Men's Leather" },
-  { id: "womens-leather", label: "Women's Leather" },
+  { id: "mens-denim", label: "Men's Denim Jackets" },
+  { id: "womens-denim", label: "Women's Denim Jackets" },
+  { id: "mens-leather", label: "Men's Leather Jackets" },
+  { id: "womens-leather", label: "Women's Leather Jackets" },
 ] as const;
 
 export const getProduct = (id: string) => products.find((p) => p.id === id);
