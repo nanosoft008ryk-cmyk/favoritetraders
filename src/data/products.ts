@@ -27,9 +27,9 @@ export type Product = {
 };
 
 const jacketImages = (id: string) => [
-  `/generated-jackets/${id}-1.svg`,
-  `/generated-jackets/${id}-2.svg`,
-  `/generated-jackets/${id}-3.svg`,
+  `/jackets/${id}-1.jpg`,
+  `/jackets/${id}-2.jpg`,
+  `/jackets/${id}-3.jpg`,
 ];
 
 export const products: Product[] = [
