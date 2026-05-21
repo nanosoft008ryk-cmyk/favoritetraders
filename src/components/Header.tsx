@@ -50,14 +50,32 @@ export function Header() {
           <Link to="/" className="hover:opacity-80 transition"><Logo /></Link>
           <nav className="hidden lg:flex items-center gap-8">
             {nav.map((n) => (
-              <Link
-                key={n.label}
-                to={n.to as any}
-                className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary transition relative group"
-              >
-                {n.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-aqua to-primary group-hover:w-full transition-all duration-300" />
-              </Link>
+              <div key={n.label} className="relative group">
+                <Link
+                  to={n.to as any}
+                  className="text-sm font-medium tracking-wide text-foreground/80 hover:text-primary transition relative inline-flex items-center gap-1"
+                >
+                  {n.label}
+                  {n.hasDropdown && <ChevronDown className="w-3 h-3" />}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-aqua to-primary group-hover:w-full transition-all duration-300" />
+                </Link>
+                {n.hasDropdown && (
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div className="glass rounded-2xl border border-white/40 shadow-luxury py-2 min-w-[240px]">
+                      {shopDropdown.map((d) => (
+                        <Link
+                          key={d.label}
+                          to={d.to}
+                          search={d.search as any}
+                          className="block px-5 py-2.5 text-sm text-foreground/80 hover:text-primary hover:bg-white/40 transition"
+                        >
+                          {d.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             ))}
           </nav>
           <div className="flex items-center gap-2">
