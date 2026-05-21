@@ -1,16 +1,21 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Heart, Search, ShoppingBag, Menu, X } from "lucide-react";
+import { Heart, Search, ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import { Logo } from "./Logo";
 import { useShop } from "@/context/ShopContext";
 
 const nav = [
   { to: "/", label: "Home" },
-  { to: "/shop", label: "Shop" },
-  { to: "/shop?cat=mens-denim", label: "Men" },
-  { to: "/shop?cat=womens-denim", label: "Women" },
+  { to: "/shop", label: "Shop", hasDropdown: true },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
+] as const;
+
+const shopDropdown = [
+  { to: "/shop", search: { cat: "mens-denim" }, label: "Men's Denim Jackets" },
+  { to: "/shop", search: { cat: "womens-denim" }, label: "Women's Denim Jackets" },
+  { to: "/shop", search: { cat: "mens-leather" }, label: "Men's Leather Jackets" },
+  { to: "/shop", search: { cat: "womens-leather" }, label: "Women's Leather Jackets" },
 ] as const;
 
 export function Header() {
