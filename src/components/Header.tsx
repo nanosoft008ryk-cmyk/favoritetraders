@@ -4,12 +4,12 @@ import { Heart, Search, ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
 import { Logo } from "./Logo";
 import { useShop } from "@/context/ShopContext";
 
-const nav = [
+const nav: { to: string; label: string; hasDropdown?: boolean }[] = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop", hasDropdown: true },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
-] as const;
+];
 
 const shopDropdown = [
   { to: "/shop", search: { cat: "mens-denim" }, label: "Men's Denim Jackets" },
