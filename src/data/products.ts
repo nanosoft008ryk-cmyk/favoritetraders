@@ -26,7 +26,11 @@ export type Product = {
   trending?: boolean;
 };
 
-const img = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=80`;
+const jacketImages = (id: string) => [
+  `/generated-jackets/${id}-1.svg`,
+  `/generated-jackets/${id}-2.svg`,
+  `/generated-jackets/${id}-3.svg`,
+];
 
 export const products: Product[] = [
   {
@@ -45,7 +49,7 @@ export const products: Product[] = [
     sizes: ["S","M","L","XL","XXL"],
     colors: [{name:"Indigo",hex:"#1e3a5f"},{name:"Stonewash",hex:"#7fa1c3"}],
     tags: ["Premium","Heritage","Selvedge"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=100", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=101", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=102"],
+    images: jacketImages("ft-001"),
     rating: 4.8, reviews: 142, featured: true, trending: true,
   },
   {
@@ -64,7 +68,7 @@ export const products: Product[] = [
     sizes: ["S","M","L","XL"],
     colors: [{name:"Raw Indigo",hex:"#243b53"}],
     tags: ["Raw Denim","Workwear","Limited"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=103", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=104", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=105"],
+    images: jacketImages("ft-002"),
     rating: 4.7, reviews: 98, newArrival: true,
   },
   {
@@ -83,7 +87,7 @@ export const products: Product[] = [
     sizes: ["S","M","L","XL","XXL"],
     colors: [{name:"Bleached Sky",hex:"#9ec5e8"},{name:"Faded",hex:"#bcd2e3"}],
     tags: ["Streetwear","Statement","Bleached"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=106", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=107", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=108"],
+    images: jacketImages("ft-003"),
     rating: 4.6, reviews: 76, trending: true,
   },
   {
@@ -102,7 +106,7 @@ export const products: Product[] = [
     sizes: ["M","L","XL"],
     colors: [{name:"Multi Indigo",hex:"#2b4a6f"}],
     tags: ["Artisan","Limited","Handmade"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=109", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=110", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=111"],
+    images: jacketImages("ft-004"),
     rating: 4.9, reviews: 54, featured: true,
   },
   {
@@ -121,7 +125,7 @@ export const products: Product[] = [
     sizes: ["S","M","L","XL"],
     colors: [{name:"Mid Blue",hex:"#4a6fa5"},{name:"Slate",hex:"#54678b"}],
     tags: ["Everyday","Minimal","Stretch"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=112", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=113", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=114"],
+    images: jacketImages("ft-005"),
     rating: 4.5, reviews: 211,
   },
 
@@ -141,7 +145,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L","XL"],
     colors: [{name:"Vintage Blue",hex:"#5a7ba0"},{name:"Ecru",hex:"#e8dfd0"}],
     tags: ["Premium","Cropped","Bestseller"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=115", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=116", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=117"],
+    images: jacketImages("ft-006"),
     rating: 4.9, reviews: 318, featured: true, trending: true,
   },
   {
@@ -160,7 +164,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L"],
     colors: [{name:"Sky Wash",hex:"#a4c4dd"}],
     tags: ["Oversized","Statement","Luxury"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=118", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=119", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=120"],
+    images: jacketImages("ft-007"),
     rating: 4.8, reviews: 142, newArrival: true,
   },
   {
@@ -179,7 +183,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L"],
     colors: [{name:"Indigo Couture",hex:"#1e3a5f"}],
     tags: ["Couture","Luxury","Limited"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=121", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=122", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=123"],
+    images: jacketImages("ft-008"),
     rating: 5.0, reviews: 41, featured: true,
   },
   {
@@ -198,7 +202,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L","XL"],
     colors: [{name:"Light Sky",hex:"#b9d4ea"},{name:"Soft Aqua",hex:"#9dc7d8"}],
     tags: ["Light Wash","Spring","Essential"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=124", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=125", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=126"],
+    images: jacketImages("ft-009"),
     rating: 4.6, reviews: 187,
   },
   {
@@ -217,7 +221,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L"],
     colors: [{name:"Vintage Indigo",hex:"#3a5a7e"}],
     tags: ["Distressed","Artisan","Streetwear"],
-    images: ["https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=127", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=128", "https://loremflickr.com/900/1100/denim,jacket,fashion/?lock=129"],
+    images: jacketImages("ft-010"),
     rating: 4.7, reviews: 92, trending: true,
   },
 
@@ -237,7 +241,7 @@ export const products: Product[] = [
     sizes: ["S","M","L","XL","XXL"],
     colors: [{name:"Onyx",hex:"#1a1d24"},{name:"Cognac",hex:"#7a4a2b"}],
     tags: ["Luxury","Signature","Italian Leather"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=200", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=201", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=202"],
+    images: jacketImages("ft-011"),
     rating: 4.9, reviews: 226, featured: true, trending: true,
   },
   {
@@ -256,7 +260,7 @@ export const products: Product[] = [
     sizes: ["M","L","XL","XXL"],
     colors: [{name:"Walnut",hex:"#4a2f1f"},{name:"Charcoal",hex:"#2d2f33"}],
     tags: ["Winter Collection","Heritage","Premium"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=203", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=204", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=205"],
+    images: jacketImages("ft-012"),
     rating: 4.8, reviews: 138, newArrival: true,
   },
   {
@@ -275,7 +279,7 @@ export const products: Product[] = [
     sizes: ["S","M","L","XL"],
     colors: [{name:"Jet Black",hex:"#0e0f12"}],
     tags: ["Moto","Streetwear","Statement"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=206", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=207", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=208"],
+    images: jacketImages("ft-013"),
     rating: 4.7, reviews: 174,
   },
   {
@@ -294,7 +298,7 @@ export const products: Product[] = [
     sizes: ["S","M","L","XL","XXL"],
     colors: [{name:"Espresso",hex:"#3b261c"},{name:"Midnight",hex:"#13182a"}],
     tags: ["Bomber","Travel","Essential"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=209", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=210", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=211"],
+    images: jacketImages("ft-014"),
     rating: 4.7, reviews: 156, featured: true,
   },
   {
@@ -313,7 +317,7 @@ export const products: Product[] = [
     sizes: ["M","L","XL"],
     colors: [{name:"Sand",hex:"#b89576"},{name:"Storm",hex:"#5c6470"}],
     tags: ["Suede","Heritage","Limited"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=212", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=213", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=214"],
+    images: jacketImages("ft-015"),
     rating: 4.8, reviews: 87, trending: true,
   },
 
@@ -333,7 +337,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L","XL"],
     colors: [{name:"Ink",hex:"#15171c"},{name:"Bordeaux",hex:"#4a1d28"}],
     tags: ["Couture","Tailored","Luxury"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=215", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=216", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=217"],
+    images: jacketImages("ft-016"),
     rating: 4.9, reviews: 198, featured: true, trending: true,
   },
   {
@@ -352,7 +356,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L"],
     colors: [{name:"Onyx",hex:"#1a1d24"},{name:"Ivory",hex:"#ece6da"}],
     tags: ["Moto","Cropped","Bestseller"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=218", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=219", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=220"],
+    images: jacketImages("ft-017"),
     rating: 4.8, reviews: 263, newArrival: true,
   },
   {
@@ -371,7 +375,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L"],
     colors: [{name:"Noir",hex:"#0e0f12"},{name:"Camel",hex:"#a87a4d"}],
     tags: ["Luxury","Statement","Couture"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=221", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=222", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=223"],
+    images: jacketImages("ft-018"),
     rating: 5.0, reviews: 67, featured: true,
   },
   {
@@ -390,7 +394,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L","XL"],
     colors: [{name:"Dune",hex:"#c5a17a"},{name:"Slate Blue",hex:"#6c8ba6"}],
     tags: ["Suede","Artisan","Trending"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=224", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=225", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=226"],
+    images: jacketImages("ft-019"),
     rating: 4.7, reviews: 119, trending: true,
   },
   {
@@ -409,7 +413,7 @@ export const products: Product[] = [
     sizes: ["XS","S","M","L"],
     colors: [{name:"Midnight",hex:"#13182a"},{name:"Pearl",hex:"#dfe4ea"}],
     tags: ["Winter Collection","Quilted","Premium"],
-    images: ["https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=227", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=228", "https://loremflickr.com/900/1100/leather,jacket,fashion/?lock=229"],
+    images: jacketImages("ft-020"),
     rating: 4.8, reviews: 145,
   },
 ];
