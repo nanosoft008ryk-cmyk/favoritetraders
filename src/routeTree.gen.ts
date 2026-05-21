@@ -9,15 +9,70 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as ShippingPolicyRouteImport } from './routes/shipping-policy'
+import { Route as ReturnPolicyRouteImport } from './routes/return-policy'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as OrderSuccessRouteImport } from './routes/order-success'
+import { Route as CookiePolicyRouteImport } from './routes/cookie-policy'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 
+const WishlistRoute = WishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShippingPolicyRoute = ShippingPolicyRouteImport.update({
+  id: '/shipping-policy',
+  path: '/shipping-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReturnPolicyRoute = ReturnPolicyRouteImport.update({
+  id: '/return-policy',
+  path: '/return-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderSuccessRoute = OrderSuccessRouteImport.update({
+  id: '/order-success',
+  path: '/order-success',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiePolicyRoute = CookiePolicyRouteImport.update({
+  id: '/cookie-policy',
+  path: '/cookie-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -28,6 +83,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,49 +103,198 @@ const ProductIdRoute = ProductIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/order-success': typeof OrderSuccessRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/return-policy': typeof ReturnPolicyRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
+  '/wishlist': typeof WishlistRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/order-success': typeof OrderSuccessRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/return-policy': typeof ReturnPolicyRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
+  '/wishlist': typeof WishlistRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/contact': typeof ContactRoute
+  '/cookie-policy': typeof CookiePolicyRoute
+  '/order-success': typeof OrderSuccessRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/return-policy': typeof ReturnPolicyRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/shop': typeof ShopRoute
+  '/terms': typeof TermsRoute
+  '/wishlist': typeof WishlistRoute
   '/product/$id': typeof ProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cart' | '/checkout' | '/shop' | '/product/$id'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/cart'
+    | '/checkout'
+    | '/contact'
+    | '/cookie-policy'
+    | '/order-success'
+    | '/privacy-policy'
+    | '/refund-policy'
+    | '/return-policy'
+    | '/shipping-policy'
+    | '/shop'
+    | '/terms'
+    | '/wishlist'
+    | '/product/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cart' | '/checkout' | '/shop' | '/product/$id'
-  id: '__root__' | '/' | '/cart' | '/checkout' | '/shop' | '/product/$id'
+  to:
+    | '/'
+    | '/about'
+    | '/cart'
+    | '/checkout'
+    | '/contact'
+    | '/cookie-policy'
+    | '/order-success'
+    | '/privacy-policy'
+    | '/refund-policy'
+    | '/return-policy'
+    | '/shipping-policy'
+    | '/shop'
+    | '/terms'
+    | '/wishlist'
+    | '/product/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/cart'
+    | '/checkout'
+    | '/contact'
+    | '/cookie-policy'
+    | '/order-success'
+    | '/privacy-policy'
+    | '/refund-policy'
+    | '/return-policy'
+    | '/shipping-policy'
+    | '/shop'
+    | '/terms'
+    | '/wishlist'
+    | '/product/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
+  ContactRoute: typeof ContactRoute
+  CookiePolicyRoute: typeof CookiePolicyRoute
+  OrderSuccessRoute: typeof OrderSuccessRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
+  ReturnPolicyRoute: typeof ReturnPolicyRoute
+  ShippingPolicyRoute: typeof ShippingPolicyRoute
   ShopRoute: typeof ShopRoute
+  TermsRoute: typeof TermsRoute
+  WishlistRoute: typeof WishlistRoute
   ProductIdRoute: typeof ProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wishlist': {
+      id: '/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
       fullPath: '/shop'
       preLoaderRoute: typeof ShopRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shipping-policy': {
+      id: '/shipping-policy'
+      path: '/shipping-policy'
+      fullPath: '/shipping-policy'
+      preLoaderRoute: typeof ShippingPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/return-policy': {
+      id: '/return-policy'
+      path: '/return-policy'
+      fullPath: '/return-policy'
+      preLoaderRoute: typeof ReturnPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order-success': {
+      id: '/order-success'
+      path: '/order-success'
+      fullPath: '/order-success'
+      preLoaderRoute: typeof OrderSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookie-policy': {
+      id: '/cookie-policy'
+      path: '/cookie-policy'
+      fullPath: '/cookie-policy'
+      preLoaderRoute: typeof CookiePolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -100,6 +309,13 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -121,9 +337,19 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
+  ContactRoute: ContactRoute,
+  CookiePolicyRoute: CookiePolicyRoute,
+  OrderSuccessRoute: OrderSuccessRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
+  ReturnPolicyRoute: ReturnPolicyRoute,
+  ShippingPolicyRoute: ShippingPolicyRoute,
   ShopRoute: ShopRoute,
+  TermsRoute: TermsRoute,
+  WishlistRoute: WishlistRoute,
   ProductIdRoute: ProductIdRoute,
 }
 export const routeTree = rootRouteImport
