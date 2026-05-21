@@ -29,7 +29,7 @@ function Shop() {
 
   const setShopSearch = (next: Partial<ShopSearch>) => {
     navigate({
-      search: (prev) => ({
+      search: (prev: ShopSearch) => ({
         ...prev,
         ...next,
       }),
