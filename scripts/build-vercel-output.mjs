@@ -18,7 +18,8 @@ import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync, readdirSync } fro
 import { join } from "node:path";
 
 const root = process.cwd();
-const distClient = join(root, "dist", "client");
+const distClientCandidates = [join(root, "dist", "client"), join(root, "dist")];
+const distClient = distClientCandidates.find((dir) => existsSync(join(dir, "index.html")));
 const distServer = join(root, "dist", "server");
 const outDir = join(root, ".vercel", "output");
 const legacyOutputDir = join(root, "output");
@@ -26,10 +27,11 @@ const staticDir = join(outDir, "static");
 const fnDir = join(outDir, "functions", "_ssr.func");
 const serverEntry = join(fnDir, "server.js");
 
-if (!existsSync(distClient) || !existsSync(distServer)) {
-  console.error("[build-vercel-output] dist/client or dist/server missing — run `vite build` first.");
+if (!distClient) {
+  console.error("[build-vercel-output] client build missing — expected dist/client/index.html or dist/index.html after `vite build`.");
   process.exit(1);
 }
+const hasServerBuild = existsSync(join(distServer, "server.js"));
 
 // Clean previous output
 rmSync(outDir, { recursive: true, force: true });
@@ -40,8 +42,10 @@ mkdirSync(fnDir, { recursive: true });
 // 1. Copy client assets -> static/
 cpSync(distClient, staticDir, { recursive: true });
 
-// 2. Copy SSR bundle into the function directory
-cpSync(distServer, fnDir, { recursive: true });
+// 2. Copy SSR bundle into the function directory when Vite emitted one.
+if (hasServerBuild) {
+  cpSync(distServer, fnDir, { recursive: true });
+}
 
 // 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls server.fetch
 const adapter = `import { createServer } from "node:http";
