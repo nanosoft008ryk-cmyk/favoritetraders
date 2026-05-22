@@ -21,6 +21,7 @@ const root = process.cwd();
 const distClient = join(root, "dist", "client");
 const distServer = join(root, "dist", "server");
 const outDir = join(root, ".vercel", "output");
+const legacyOutputDir = join(root, "output");
 const staticDir = join(outDir, "static");
 const fnDir = join(outDir, "functions", "_ssr.func");
 
@@ -31,6 +32,7 @@ if (!existsSync(distClient) || !existsSync(distServer)) {
 
 // Clean previous output
 rmSync(outDir, { recursive: true, force: true });
+rmSync(legacyOutputDir, { recursive: true, force: true });
 mkdirSync(staticDir, { recursive: true });
 mkdirSync(fnDir, { recursive: true });
 
@@ -119,8 +121,21 @@ const config = {
 };
 writeFileSync(join(outDir, "config.json"), JSON.stringify(config, null, 2));
 
+// 6. Safety mirror for Vercel projects whose dashboard still has Output Directory = "output".
+// Vercel normally consumes .vercel/output via the Build Output API, but creating this
+// directory prevents the persistent "No Output Directory named output" failure.
+cpSync(distClient, legacyOutputDir, { recursive: true });
+
+const requiredOutputs = [outDir, staticDir, fnDir, join(outDir, "config.json"), legacyOutputDir];
+const missingOutputs = requiredOutputs.filter((path) => !existsSync(path));
+if (missingOutputs.length > 0) {
+  console.error(`[build-vercel-output] missing generated output:\n${missingOutputs.join("\n")}`);
+  process.exit(1);
+}
+
 // Report
 const staticCount = readdirSync(staticDir).length;
 console.log(`[build-vercel-output] wrote .vercel/output/static (${staticCount} entries)`);
 console.log(`[build-vercel-output] wrote .vercel/output/functions/_ssr.func (nodejs20.x)`);
 console.log(`[build-vercel-output] wrote .vercel/output/config.json (SPA fallback -> /_ssr)`);
+console.log(`[build-vercel-output] wrote output/ fallback mirror for Vercel dashboard outputDirectory overrides`);
