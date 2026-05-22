@@ -48,7 +48,8 @@ if (hasServerBuild) {
 }
 
 // 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls server.fetch
-const adapter = `import { createServer } from "node:http";
+if (hasServerBuild) {
+  const adapter = `import { createServer } from "node:http";
 import { Readable } from "node:stream";
 import serverEntry from "./server.js";
 
@@ -97,32 +98,39 @@ export default async function handler(req, res) {
   }
 }
 `;
-writeFileSync(join(fnDir, "index.mjs"), adapter);
+  writeFileSync(join(fnDir, "index.mjs"), adapter);
 
-// 4. Function config
-writeFileSync(
-  join(fnDir, ".vc-config.json"),
-  JSON.stringify(
-    {
-      runtime: "nodejs20.x",
-      handler: "index.mjs",
-      launcherType: "Nodejs",
-      shouldAddHelpers: false,
-      supportsResponseStreaming: true,
-    },
-    null,
-    2,
-  ),
-);
+  // 4. Function config
+  writeFileSync(
+    join(fnDir, ".vc-config.json"),
+    JSON.stringify(
+      {
+        runtime: "nodejs20.x",
+        handler: "index.mjs",
+        launcherType: "Nodejs",
+        shouldAddHelpers: false,
+        supportsResponseStreaming: true,
+      },
+      null,
+      2,
+    ),
+  );
+}
 
 // 5. Build Output config — filesystem first, then SPA/SSR fallback to /_ssr
 const config = {
   version: 3,
-  routes: [
-    { handle: "filesystem" },
-    // Everything that didn't match a static asset goes to the SSR function.
-    { src: "/(.*)", dest: "/_ssr" },
-  ],
+  routes: hasServerBuild
+    ? [
+        { handle: "filesystem" },
+        // Everything that didn't match a static asset goes to the SSR function.
+        { src: "/(.*)", dest: "/_ssr" },
+      ]
+    : [
+        { handle: "filesystem" },
+        // SPA fallback when no SSR bundle is emitted.
+        { src: "/(.*)", dest: "/index.html" },
+      ],
 };
 writeFileSync(join(outDir, "config.json"), JSON.stringify(config, null, 2));
 
