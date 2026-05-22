@@ -27,6 +27,14 @@ const staticDir = join(outDir, "static");
 const fnDir = join(outDir, "functions", "_ssr.func");
 const serverEntry = join(fnDir, "server.js");
 
+function copyClientBuild(src, dest) {
+  mkdirSync(dest, { recursive: true });
+  for (const entry of readdirSync(src, { withFileTypes: true })) {
+    if (src === join(root, "dist") && entry.name === "server") continue;
+    cpSync(join(src, entry.name), join(dest, entry.name), { recursive: true });
+  }
+}
+
 if (!distClient) {
   console.error("[build-vercel-output] client build missing — expected dist/client/index.html or dist/index.html after `vite build`.");
   process.exit(1);
@@ -42,7 +50,7 @@ if (hasServerBuild) {
 }
 
 // 1. Copy client assets -> static/
-cpSync(distClient, staticDir, { recursive: true });
+copyClientBuild(distClient, staticDir);
 
 // 2. Copy SSR bundle into the function directory when Vite emitted one.
 if (hasServerBuild) {
@@ -139,7 +147,7 @@ writeFileSync(join(outDir, "config.json"), JSON.stringify(config, null, 2));
 // 6. Safety mirror for Vercel projects whose dashboard still has Output Directory = "output".
 // Vercel normally consumes .vercel/output via the Build Output API, but creating this
 // directory prevents the persistent "No Output Directory named output" failure.
-cpSync(distClient, legacyOutputDir, { recursive: true });
+copyClientBuild(distClient, legacyOutputDir);
 
 const requiredOutputs = [
   outDir,
