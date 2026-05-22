@@ -37,7 +37,9 @@ const hasServerBuild = existsSync(join(distServer, "server.js"));
 rmSync(outDir, { recursive: true, force: true });
 rmSync(legacyOutputDir, { recursive: true, force: true });
 mkdirSync(staticDir, { recursive: true });
-mkdirSync(fnDir, { recursive: true });
+if (hasServerBuild) {
+  mkdirSync(fnDir, { recursive: true });
+}
 
 // 1. Copy client assets -> static/
 cpSync(distClient, staticDir, { recursive: true });
