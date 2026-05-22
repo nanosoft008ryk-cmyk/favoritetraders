@@ -24,6 +24,7 @@ const outDir = join(root, ".vercel", "output");
 const legacyOutputDir = join(root, "output");
 const staticDir = join(outDir, "static");
 const fnDir = join(outDir, "functions", "_ssr.func");
+const serverEntry = join(fnDir, "server.js");
 
 if (!existsSync(distClient) || !existsSync(distServer)) {
   console.error("[build-vercel-output] dist/client or dist/server missing — run `vite build` first.");
@@ -126,7 +127,18 @@ writeFileSync(join(outDir, "config.json"), JSON.stringify(config, null, 2));
 // directory prevents the persistent "No Output Directory named output" failure.
 cpSync(distClient, legacyOutputDir, { recursive: true });
 
-const requiredOutputs = [outDir, staticDir, fnDir, join(outDir, "config.json"), legacyOutputDir];
+const requiredOutputs = [
+  outDir,
+  staticDir,
+  join(staticDir, "index.html"),
+  fnDir,
+  serverEntry,
+  join(fnDir, "index.mjs"),
+  join(fnDir, ".vc-config.json"),
+  join(outDir, "config.json"),
+  legacyOutputDir,
+  join(legacyOutputDir, "index.html"),
+];
 const missingOutputs = requiredOutputs.filter((path) => !existsSync(path));
 if (missingOutputs.length > 0) {
   console.error(`[build-vercel-output] missing generated output:\n${missingOutputs.join("\n")}`);
