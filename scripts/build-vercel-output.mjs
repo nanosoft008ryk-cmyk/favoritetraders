@@ -19,7 +19,7 @@ import { join } from "node:path";
 
 const root = process.cwd();
 const distClientCandidates = [join(root, "dist", "client"), join(root, "dist")];
-const distClient = distClientCandidates.find((dir) => existsSync(join(dir, "index.html")));
+const distClient = distClientCandidates.find((dir) => existsSync(join(dir, "assets")));
 const distServer = join(root, "dist", "server");
 const outDir = join(root, ".vercel", "output");
 const legacyOutputDir = join(root, "output");
