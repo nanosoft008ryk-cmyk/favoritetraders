@@ -36,7 +36,7 @@ function copyClientBuild(src, dest) {
 }
 
 if (!distClient) {
-  console.error("[build-vercel-output] client build missing — expected dist/client/index.html or dist/index.html after `vite build`.");
+  console.error("[build-vercel-output] client build missing — expected dist/client/assets or dist/assets after `vite build`.");
   process.exit(1);
 }
 const hasServerBuild = existsSync(join(distServer, "server.js"));
