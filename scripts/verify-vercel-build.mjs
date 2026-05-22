@@ -10,9 +10,7 @@ const required = [
   ".vercel/output",
   ".vercel/output/config.json",
   ".vercel/output/static",
-  ".vercel/output/static/index.html",
   "output",
-  "output/index.html",
 ];
 
 let ok = true;

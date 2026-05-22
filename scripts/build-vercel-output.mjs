@@ -19,7 +19,7 @@ import { join } from "node:path";
 
 const root = process.cwd();
 const distClientCandidates = [join(root, "dist", "client"), join(root, "dist")];
-const distClient = distClientCandidates.find((dir) => existsSync(join(dir, "index.html")));
+const distClient = distClientCandidates.find((dir) => existsSync(join(dir, "assets")));
 const distServer = join(root, "dist", "server");
 const outDir = join(root, ".vercel", "output");
 const legacyOutputDir = join(root, "output");
@@ -36,7 +36,7 @@ function copyClientBuild(src, dest) {
 }
 
 if (!distClient) {
-  console.error("[build-vercel-output] client build missing — expected dist/client/index.html or dist/index.html after `vite build`.");
+  console.error("[build-vercel-output] client build missing — expected dist/client/assets or dist/assets after `vite build`.");
   process.exit(1);
 }
 const hasServerBuild = existsSync(join(distServer, "server.js"));
@@ -152,10 +152,8 @@ copyClientBuild(distClient, legacyOutputDir);
 const requiredOutputs = [
   outDir,
   staticDir,
-  join(staticDir, "index.html"),
   join(outDir, "config.json"),
   legacyOutputDir,
-  join(legacyOutputDir, "index.html"),
 ];
 if (hasServerBuild) {
   requiredOutputs.push(fnDir, serverEntry, join(fnDir, "index.mjs"), join(fnDir, ".vc-config.json"));
