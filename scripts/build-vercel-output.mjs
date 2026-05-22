@@ -152,10 +152,8 @@ copyClientBuild(distClient, legacyOutputDir);
 const requiredOutputs = [
   outDir,
   staticDir,
-  join(staticDir, "index.html"),
   join(outDir, "config.json"),
   legacyOutputDir,
-  join(legacyOutputDir, "index.html"),
 ];
 if (hasServerBuild) {
   requiredOutputs.push(fnDir, serverEntry, join(fnDir, "index.mjs"), join(fnDir, ".vc-config.json"));
