@@ -18,30 +18,48 @@ import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync, readdirSync } fro
 import { join } from "node:path";
 
 const root = process.cwd();
-const distClient = join(root, "dist", "client");
+const distClientCandidates = [join(root, "dist", "client"), join(root, "dist")];
+const distClient = distClientCandidates.find((dir) => existsSync(join(dir, "index.html")));
 const distServer = join(root, "dist", "server");
 const outDir = join(root, ".vercel", "output");
+const legacyOutputDir = join(root, "output");
 const staticDir = join(outDir, "static");
 const fnDir = join(outDir, "functions", "_ssr.func");
+const serverEntry = join(fnDir, "server.js");
 
-if (!existsSync(distClient) || !existsSync(distServer)) {
-  console.error("[build-vercel-output] dist/client or dist/server missing — run `vite build` first.");
+function copyClientBuild(src, dest) {
+  mkdirSync(dest, { recursive: true });
+  for (const entry of readdirSync(src, { withFileTypes: true })) {
+    if (src === join(root, "dist") && entry.name === "server") continue;
+    cpSync(join(src, entry.name), join(dest, entry.name), { recursive: true });
+  }
+}
+
+if (!distClient) {
+  console.error("[build-vercel-output] client build missing — expected dist/client/index.html or dist/index.html after `vite build`.");
   process.exit(1);
 }
+const hasServerBuild = existsSync(join(distServer, "server.js"));
 
 // Clean previous output
 rmSync(outDir, { recursive: true, force: true });
+rmSync(legacyOutputDir, { recursive: true, force: true });
 mkdirSync(staticDir, { recursive: true });
-mkdirSync(fnDir, { recursive: true });
+if (hasServerBuild) {
+  mkdirSync(fnDir, { recursive: true });
+}
 
 // 1. Copy client assets -> static/
-cpSync(distClient, staticDir, { recursive: true });
+copyClientBuild(distClient, staticDir);
 
-// 2. Copy SSR bundle into the function directory
-cpSync(distServer, fnDir, { recursive: true });
+// 2. Copy SSR bundle into the function directory when Vite emitted one.
+if (hasServerBuild) {
+  cpSync(distServer, fnDir, { recursive: true });
+}
 
 // 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls server.fetch
-const adapter = `import { createServer } from "node:http";
+if (hasServerBuild) {
+  const adapter = `import { createServer } from "node:http";
 import { Readable } from "node:stream";
 import serverEntry from "./server.js";
 
@@ -90,37 +108,72 @@ export default async function handler(req, res) {
   }
 }
 `;
-writeFileSync(join(fnDir, "index.mjs"), adapter);
+  writeFileSync(join(fnDir, "index.mjs"), adapter);
 
-// 4. Function config
-writeFileSync(
-  join(fnDir, ".vc-config.json"),
-  JSON.stringify(
-    {
-      runtime: "nodejs20.x",
-      handler: "index.mjs",
-      launcherType: "Nodejs",
-      shouldAddHelpers: false,
-      supportsResponseStreaming: true,
-    },
-    null,
-    2,
-  ),
-);
+  // 4. Function config
+  writeFileSync(
+    join(fnDir, ".vc-config.json"),
+    JSON.stringify(
+      {
+        runtime: "nodejs20.x",
+        handler: "index.mjs",
+        launcherType: "Nodejs",
+        shouldAddHelpers: false,
+        supportsResponseStreaming: true,
+      },
+      null,
+      2,
+    ),
+  );
+}
 
 // 5. Build Output config — filesystem first, then SPA/SSR fallback to /_ssr
 const config = {
   version: 3,
-  routes: [
-    { handle: "filesystem" },
-    // Everything that didn't match a static asset goes to the SSR function.
-    { src: "/(.*)", dest: "/_ssr" },
-  ],
+  routes: hasServerBuild
+    ? [
+        { handle: "filesystem" },
+        // Everything that didn't match a static asset goes to the SSR function.
+        { src: "/(.*)", dest: "/_ssr" },
+      ]
+    : [
+        { handle: "filesystem" },
+        // SPA fallback when no SSR bundle is emitted.
+        { src: "/(.*)", dest: "/index.html" },
+      ],
 };
 writeFileSync(join(outDir, "config.json"), JSON.stringify(config, null, 2));
+
+// 6. Safety mirror for Vercel projects whose dashboard still has Output Directory = "output".
+// Vercel normally consumes .vercel/output via the Build Output API, but creating this
+// directory prevents the persistent "No Output Directory named output" failure.
+copyClientBuild(distClient, legacyOutputDir);
+
+const requiredOutputs = [
+  outDir,
+  staticDir,
+  join(staticDir, "index.html"),
+  join(outDir, "config.json"),
+  legacyOutputDir,
+  join(legacyOutputDir, "index.html"),
+];
+if (hasServerBuild) {
+  requiredOutputs.push(fnDir, serverEntry, join(fnDir, "index.mjs"), join(fnDir, ".vc-config.json"));
+}
+const missingOutputs = requiredOutputs.filter((path) => !existsSync(path));
+if (missingOutputs.length > 0) {
+  console.error(`[build-vercel-output] missing generated output:\n${missingOutputs.join("\n")}`);
+  process.exit(1);
+}
 
 // Report
 const staticCount = readdirSync(staticDir).length;
 console.log(`[build-vercel-output] wrote .vercel/output/static (${staticCount} entries)`);
-console.log(`[build-vercel-output] wrote .vercel/output/functions/_ssr.func (nodejs20.x)`);
-console.log(`[build-vercel-output] wrote .vercel/output/config.json (SPA fallback -> /_ssr)`);
+if (hasServerBuild) {
+  console.log(`[build-vercel-output] wrote .vercel/output/functions/_ssr.func (nodejs20.x)`);
+  console.log(`[build-vercel-output] wrote .vercel/output/config.json (SPA/SSR fallback -> /_ssr)`);
+} else {
+  console.log(`[build-vercel-output] no dist/server/server.js found; using static SPA fallback -> /index.html`);
+  console.log(`[build-vercel-output] wrote .vercel/output/config.json (SPA fallback -> /index.html)`);
+}
+console.log(`[build-vercel-output] wrote output/ fallback mirror for Vercel dashboard outputDirectory overrides`);
