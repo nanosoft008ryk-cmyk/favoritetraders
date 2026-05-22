@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Verifies that `vite build` produced the expected Vercel Build Output API artifacts.
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
@@ -10,6 +10,7 @@ const required = [
   ".vercel/output",
   ".vercel/output/config.json",
   ".vercel/output/static",
+  "output",
 ];
 
 let ok = true;
@@ -50,3 +51,4 @@ if (!ok) {
   process.exit(1);
 }
 console.log("\n[verify-vercel-build] SUCCESS — .vercel/output is ready for deployment.");
+console.log("[verify-vercel-build] SUCCESS — output/ fallback also exists for Vercel outputDirectory overrides.");
