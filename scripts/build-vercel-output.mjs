@@ -1,32 +1,23 @@
 #!/usr/bin/env node
-// Post-build adapter: converts Vite's dist/{client,server} output into the
-// Vercel Build Output API v3 format under .vercel/output/.
+// Post-build adapter: converts Vite's client output into a static Vercel
+// Build Output API v3 deployment under .vercel/output/.
 //
 // Layout produced:
 //   .vercel/output/config.json
 //   .vercel/output/static/...          (all client assets from public/ + Vite hashed assets)
-//   .vercel/output/functions/_ssr.func/
-//       .vc-config.json                (Node.js serverless function)
-//       index.mjs                      (adapter: IncomingMessage -> Request -> server.fetch -> ServerResponse)
-//       server.js                      (TanStack SSR bundle, copied)
-//       assets/                        (SSR chunks)
-//
-// Routing: filesystem first (serves static assets), then catch-all -> /_ssr
-// This is the SPA/SSR fallback that prevents 404s on every route.
+// Routing: filesystem first, then every app route falls back to /index.html.
+// We intentionally do not emit a Vercel function here: the SSR function was
+// the source of FUNCTION_INVOCATION_FAILED / Internal Server Error crashes.
 
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join, relative } from "node:path";
-import { nodeFileTrace } from "@vercel/nft";
+import { join } from "node:path";
 
 const root = process.cwd();
 const distClientCandidates = [join(root, "dist", "client"), join(root, "dist")];
 const distClient = distClientCandidates.find((dir) => existsSync(join(dir, "assets")));
-const distServer = join(root, "dist", "server");
 const outDir = join(root, ".vercel", "output");
 const legacyOutputDir = join(root, "output");
 const staticDir = join(outDir, "static");
-const fnDir = join(outDir, "functions", "_ssr.func");
-const serverEntry = join(fnDir, "server.js");
 
 function copyClientBuild(src, dest) {
   mkdirSync(dest, { recursive: true });
