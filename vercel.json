@@ -2,5 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "buildCommand": "vite build && node scripts/build-vercel-output.mjs && node scripts/verify-vercel-build.mjs",
-  "installCommand": "npm install"
+  "outputDirectory": "output",
+  "installCommand": "npm install",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

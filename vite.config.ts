@@ -1,9 +1,15 @@
-// Vercel-only build. Lovable's Cloudflare Publish will not work with this config.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
-// We intentionally do NOT set tanstackStart.target = "vercel" — that target
-// makes the plugin emit directly into .vercel/output and skips dist/, which
-// breaks our post-build adapter that reads from dist/{client,server}.
+const isVercelBuild = process.env.VERCEL === "1";
+
 export default defineConfig({
-  cloudflare: false,
+  cloudflare: isVercelBuild ? false : undefined,
+  tanstackStart: {
+    spa: {
+      enabled: true,
+      prerender: {
+        outputPath: "/index",
+      },
+    },
+  },
 });
