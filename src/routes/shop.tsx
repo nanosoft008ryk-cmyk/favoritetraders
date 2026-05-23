@@ -5,7 +5,7 @@ import { products, categories } from "@/data/products";
 import { ProductCard } from "@/components/ProductCard";
 
 type ShopSearch = { cat?: string; q?: string; sort?: string };
-const categoryIds = new Set(categories.map((c) => c.id));
+const categoryIds = new Set<string>(categories.map((c) => c.id));
 
 export const Route = createFileRoute("/shop")({
   validateSearch: (s: Record<string, unknown>): ShopSearch => ({

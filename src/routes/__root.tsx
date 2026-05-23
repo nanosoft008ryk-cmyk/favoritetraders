@@ -4,16 +4,12 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "sonner";
 import { ShopProvider } from "@/context/ShopContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
-
-import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
   return (
@@ -61,28 +57,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/l2ararfC6eXGxLKqtaDDYs4PG6x1/social-images/social-1779464710047-Screenshot_2026-05-22_204215.webp" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/l2ararfC6eXGxLKqtaDDYs4PG6x1/social-images/social-1779464710047-Screenshot_2026-05-22_204215.webp" },
     ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" },
-      { rel: "icon", href: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='40' y2='40'%3E%3Cstop offset='0%25' stop-color='%237fb6e0'/%3E%3Cstop offset='100%25' stop-color='%231a3a72'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M20 2L36 12V28L20 38L4 28V12Z' fill='url(%23g)'/%3E%3Ctext x='20' y='27' text-anchor='middle' font-family='Georgia,serif' font-size='20' font-weight='700' fill='white'%3EF%3C/text%3E%3C/svg%3E" },
-    ],
   }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
