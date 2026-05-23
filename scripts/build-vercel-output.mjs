@@ -126,7 +126,7 @@ async function loadServerEntry() {
 async function nodeReqToWebRequest(req) {
   const proto = req.headers["x-forwarded-proto"] || "https";
   const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
-  const url = new URL(req.url || "/", \`\${proto}://\${host}\`);
+  const url = new URL(req.url || "/", `${proto}://${host}`);
   const headers = new Headers();
   for (const [k, v] of Object.entries(req.headers)) {
     if (v === undefined) continue;
