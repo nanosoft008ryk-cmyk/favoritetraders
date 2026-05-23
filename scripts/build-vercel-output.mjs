@@ -97,7 +97,7 @@ if (hasServerBuild) {
 
 // 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls the TanStack handler.
 if (hasServerBuild) {
-  const adapter = `import { Readable } from "node:stream";
+  const adapter = String.raw`import { Readable } from "node:stream";
 
 let serverEntryPromise;
 
