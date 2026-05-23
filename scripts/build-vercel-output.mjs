@@ -15,7 +15,7 @@
 // This is the SPA/SSR fallback that prevents 404s on every route.
 
 import { builtinModules } from "node:module";
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
