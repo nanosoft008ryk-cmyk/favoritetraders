@@ -61,7 +61,6 @@ copyClientBuild(distClient, staticDir);
 // 2. Copy SSR bundle into the function directory when Vite emitted one.
 if (hasServerBuild) {
   cpSync(distServer, fnDir, { recursive: true });
-  assertNoBareRuntimeImports(fnDir);
 }
 
 // 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls the TanStack handler.
@@ -159,6 +158,21 @@ export default async function handler(req, res) {
       2,
     ),
   );
+
+  const trace = await nodeFileTrace([join(fnDir, "index.mjs")], {
+    base: root,
+    processCwd: root,
+  });
+  let tracedCount = 0;
+  for (const file of trace.fileList) {
+    const src = join(root, file);
+    if (!existsSync(src) || isInside(fnDir, src)) continue;
+    const dest = join(fnDir, file);
+    mkdirSync(dirname(dest), { recursive: true });
+    cpSync(src, dest, { recursive: true });
+    tracedCount += 1;
+  }
+  console.log(`[build-vercel-output] traced ${tracedCount} runtime dependency files into _ssr.func`);
 }
 
 // 5. Build Output config — filesystem first, then SPA/SSR fallback to /_ssr
