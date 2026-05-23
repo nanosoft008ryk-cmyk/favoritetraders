@@ -40,24 +40,17 @@ mkdirSync(staticDir, { recursive: true });
 // 1. Copy client assets -> static/
 copyClientBuild(distClient, staticDir);
 
-// 5. Build Output config — filesystem first, then SPA/SSR fallback to /_ssr
+// 2. Build Output config — filesystem first, then SPA fallback to /index.html.
 const config = {
   version: 3,
-  routes: hasServerBuild
-    ? [
-        { handle: "filesystem" },
-        // Everything that didn't match a static asset goes to the SSR function.
-        { src: "/(.*)", dest: "/_ssr" },
-      ]
-    : [
-        { handle: "filesystem" },
-        // SPA fallback when no SSR bundle is emitted.
-        { src: "/(.*)", dest: "/index.html" },
-      ],
+  routes: [
+    { handle: "filesystem" },
+    { src: "/(.*)", dest: "/index.html" },
+  ],
 };
 writeFileSync(join(outDir, "config.json"), JSON.stringify(config, null, 2));
 
-// 6. Safety mirror for Vercel projects whose dashboard still has Output Directory = "output".
+// 3. Safety mirror for Vercel projects whose dashboard still has Output Directory = "output".
 // Vercel normally consumes .vercel/output via the Build Output API, but creating this
 // directory prevents the persistent "No Output Directory named output" failure.
 copyClientBuild(distClient, legacyOutputDir);
@@ -67,10 +60,9 @@ const requiredOutputs = [
   staticDir,
   join(outDir, "config.json"),
   legacyOutputDir,
+  join(staticDir, "index.html"),
+  join(legacyOutputDir, "index.html"),
 ];
-if (hasServerBuild) {
-  requiredOutputs.push(fnDir, serverEntry, join(fnDir, "index.mjs"), join(fnDir, ".vc-config.json"));
-}
 const missingOutputs = requiredOutputs.filter((path) => !existsSync(path));
 if (missingOutputs.length > 0) {
   console.error(`[build-vercel-output] missing generated output:\n${missingOutputs.join("\n")}`);
@@ -80,11 +72,5 @@ if (missingOutputs.length > 0) {
 // Report
 const staticCount = readdirSync(staticDir).length;
 console.log(`[build-vercel-output] wrote .vercel/output/static (${staticCount} entries)`);
-if (hasServerBuild) {
-  console.log(`[build-vercel-output] wrote .vercel/output/functions/_ssr.func (nodejs20.x)`);
-  console.log(`[build-vercel-output] wrote .vercel/output/config.json (SPA/SSR fallback -> /_ssr)`);
-} else {
-  console.log(`[build-vercel-output] no dist/server/server.js found; using static SPA fallback -> /index.html`);
-  console.log(`[build-vercel-output] wrote .vercel/output/config.json (SPA fallback -> /index.html)`);
-}
+console.log(`[build-vercel-output] wrote .vercel/output/config.json (static SPA fallback -> /index.html)`);
 console.log(`[build-vercel-output] wrote output/ fallback mirror for Vercel dashboard outputDirectory overrides`);
