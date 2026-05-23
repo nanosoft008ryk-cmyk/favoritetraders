@@ -113,7 +113,7 @@ async function loadServerEntry() {
       if (typeof candidate === "function") return candidate;
       if (candidate && typeof candidate.fetch === "function") return (request) => candidate.fetch(request);
       const keys = Object.keys(mod).join(", ") || "<none>";
-      throw new Error(`TanStack server bundle did not export a request handler. Export keys: ${keys}`);
+      throw new Error("TanStack server bundle did not export a request handler. Export keys: " + keys);
     }).catch((error) => {
       console.error("[ssr-adapter] failed to import ./server.js", formatError(error));
       serverEntryPromise = undefined;
@@ -162,7 +162,7 @@ export default async function handler(req, res) {
     const request = await nodeReqToWebRequest(req);
     const response = await handleRequest(request);
     if (!(response instanceof Response)) {
-      throw new Error(`TanStack server handler returned ${Object.prototype.toString.call(response)} instead of a Web Response`);
+      throw new Error("TanStack server handler returned " + Object.prototype.toString.call(response) + " instead of a Web Response");
     }
     await writeWebResponse(response, res);
   } catch (err) {
