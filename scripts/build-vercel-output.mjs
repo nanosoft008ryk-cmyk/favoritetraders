@@ -14,7 +14,8 @@
 // Routing: filesystem first (serves static assets), then catch-all -> /_ssr
 // This is the SPA/SSR fallback that prevents 404s on every route.
 
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync, readdirSync } from "node:fs";
+import { builtinModules } from "node:module";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
@@ -32,6 +33,42 @@ function copyClientBuild(src, dest) {
   for (const entry of readdirSync(src, { withFileTypes: true })) {
     if (src === join(root, "dist") && entry.name === "server") continue;
     cpSync(join(src, entry.name), join(dest, entry.name), { recursive: true });
+  }
+}
+
+const nodeBuiltins = new Set([...builtinModules, ...builtinModules.map((name) => `node:${name}`)]);
+
+function collectFiles(dir, files = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) collectFiles(path, files);
+    else if (/\.[cm]?js$/.test(entry.name)) files.push(path);
+  }
+  return files;
+}
+
+function assertNoBareRuntimeImports(dir) {
+  const unresolved = new Map();
+  const importPattern = /(?:\bimport\s+(?:[^"'();]+?\s+from\s+)?|\bexport\s+[^"']*?\s+from\s+|\bimport\s*\()(["'])([^"']+)\1/g;
+
+  for (const file of collectFiles(dir)) {
+    const code = readFileSync(file, "utf8");
+    for (const match of code.matchAll(importPattern)) {
+      const specifier = match[2];
+      const isRelative = specifier.startsWith(".") || specifier.startsWith("/");
+      const isUrl = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(specifier) && !specifier.startsWith("node:");
+      if (isRelative || isUrl || nodeBuiltins.has(specifier)) continue;
+      if (!unresolved.has(specifier)) unresolved.set(specifier, []);
+      unresolved.get(specifier).push(file.replace(`${root}/`, ""));
+    }
+  }
+
+  if (unresolved.size > 0) {
+    const details = [...unresolved]
+      .map(([specifier, files]) => `  - ${specifier} in ${[...new Set(files)].slice(0, 3).join(", ")}`)
+      .join("\n");
+    console.error(`[build-vercel-output] server bundle still contains bare package imports. These are not packaged into .vercel/output/functions/_ssr.func and will crash at runtime. Configure Vite SSR bundling before deploying:\n${details}`);
+    process.exit(1);
   }
 }
 
@@ -55,18 +92,41 @@ copyClientBuild(distClient, staticDir);
 // 2. Copy SSR bundle into the function directory when Vite emitted one.
 if (hasServerBuild) {
   cpSync(distServer, fnDir, { recursive: true });
+  assertNoBareRuntimeImports(fnDir);
 }
 
-// 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls server.fetch
+// 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls the TanStack handler.
 if (hasServerBuild) {
-  const adapter = `import { createServer } from "node:http";
-import { Readable } from "node:stream";
-import serverEntry from "./server.js";
+  const adapter = String.raw`import { Readable } from "node:stream";
+
+let serverEntryPromise;
+
+function formatError(error) {
+  if (error instanceof Error) return error.stack || error.message;
+  try { return JSON.stringify(error); } catch { return String(error); }
+}
+
+async function loadServerEntry() {
+  if (!serverEntryPromise) {
+    serverEntryPromise = import("./server.js").then((mod) => {
+      const candidate = mod.default ?? mod;
+      if (typeof candidate === "function") return candidate;
+      if (candidate && typeof candidate.fetch === "function") return (request) => candidate.fetch(request);
+      const keys = Object.keys(mod).join(", ") || "<none>";
+      throw new Error("TanStack server bundle did not export a request handler. Export keys: " + keys);
+    }).catch((error) => {
+      console.error("[ssr-adapter] failed to import ./server.js", formatError(error));
+      serverEntryPromise = undefined;
+      throw error;
+    });
+  }
+  return serverEntryPromise;
+}
 
 async function nodeReqToWebRequest(req) {
   const proto = req.headers["x-forwarded-proto"] || "https";
   const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
-  const url = new URL(req.url || "/", \`\${proto}://\${host}\`);
+  const url = new URL(req.url || "/", proto + "://" + host);
   const headers = new Headers();
   for (const [k, v] of Object.entries(req.headers)) {
     if (v === undefined) continue;
@@ -98,12 +158,17 @@ async function writeWebResponse(webRes, res) {
 
 export default async function handler(req, res) {
   try {
+    const handleRequest = await loadServerEntry();
     const request = await nodeReqToWebRequest(req);
-    const response = await serverEntry.fetch(request);
+    const response = await handleRequest(request);
+    if (!(response instanceof Response)) {
+      throw new Error("TanStack server handler returned " + Object.prototype.toString.call(response) + " instead of a Web Response");
+    }
     await writeWebResponse(response, res);
   } catch (err) {
-    console.error("[ssr-adapter] error:", err);
+    console.error("[ssr-adapter] function invocation failed", formatError(err));
     res.statusCode = 500;
+    res.setHeader("content-type", "text/plain; charset=utf-8");
     res.end("Internal Server Error");
   }
 }

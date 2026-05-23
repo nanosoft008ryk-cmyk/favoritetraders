@@ -6,4 +6,9 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 // breaks our post-build adapter that reads from dist/{client,server}.
 export default defineConfig({
   cloudflare: false,
+  vite: {
+    ssr: {
+      noExternal: true,
+    },
+  },
 });
