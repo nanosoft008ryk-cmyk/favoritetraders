@@ -14,9 +14,9 @@
 // Routing: filesystem first (serves static assets), then catch-all -> /_ssr
 // This is the SPA/SSR fallback that prevents 404s on every route.
 
-import { builtinModules } from "node:module";
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, isAbsolute, join, relative } from "node:path";
+import { nodeFileTrace } from "@vercel/nft";
 
 const root = process.cwd();
 const distClientCandidates = [join(root, "dist", "client"), join(root, "dist")];
@@ -36,40 +36,9 @@ function copyClientBuild(src, dest) {
   }
 }
 
-const nodeBuiltins = new Set([...builtinModules, ...builtinModules.map((name) => `node:${name}`)]);
-
-function collectFiles(dir, files = []) {
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) collectFiles(path, files);
-    else if (/\.[cm]?js$/.test(entry.name)) files.push(path);
-  }
-  return files;
-}
-
-function assertNoBareRuntimeImports(dir) {
-  const unresolved = new Map();
-  const importPattern = /(?:\bimport\s+(?:[^"'();]+?\s+from\s+)?|\bexport\s+[^"']*?\s+from\s+|\bimport\s*\()(["'])([^"']+)\1/g;
-
-  for (const file of collectFiles(dir)) {
-    const code = readFileSync(file, "utf8");
-    for (const match of code.matchAll(importPattern)) {
-      const specifier = match[2];
-      const isRelative = specifier.startsWith(".") || specifier.startsWith("/");
-      const isUrl = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(specifier) && !specifier.startsWith("node:");
-      if (isRelative || isUrl || nodeBuiltins.has(specifier)) continue;
-      if (!unresolved.has(specifier)) unresolved.set(specifier, []);
-      unresolved.get(specifier).push(file.replace(`${root}/`, ""));
-    }
-  }
-
-  if (unresolved.size > 0) {
-    const details = [...unresolved]
-      .map(([specifier, files]) => `  - ${specifier} in ${[...new Set(files)].slice(0, 3).join(", ")}`)
-      .join("\n");
-    console.error(`[build-vercel-output] server bundle still contains bare package imports. These are not packaged into .vercel/output/functions/_ssr.func and will crash at runtime. Configure Vite SSR bundling before deploying:\n${details}`);
-    process.exit(1);
-  }
+function isInside(parent, child) {
+  const rel = relative(parent, child);
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
 }
 
 if (!distClient) {
@@ -92,7 +61,6 @@ copyClientBuild(distClient, staticDir);
 // 2. Copy SSR bundle into the function directory when Vite emitted one.
 if (hasServerBuild) {
   cpSync(distServer, fnDir, { recursive: true });
-  assertNoBareRuntimeImports(fnDir);
 }
 
 // 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls the TanStack handler.
@@ -190,6 +158,21 @@ export default async function handler(req, res) {
       2,
     ),
   );
+
+  const trace = await nodeFileTrace([join(fnDir, "index.mjs")], {
+    base: root,
+    processCwd: root,
+  });
+  let tracedCount = 0;
+  for (const file of trace.fileList) {
+    const src = join(root, file);
+    if (!existsSync(src) || isInside(fnDir, src)) continue;
+    const dest = join(fnDir, file);
+    mkdirSync(dirname(dest), { recursive: true });
+    cpSync(src, dest, { recursive: true });
+    tracedCount += 1;
+  }
+  console.log(`[build-vercel-output] traced ${tracedCount} runtime dependency files into _ssr.func`);
 }
 
 // 5. Build Output config — filesystem first, then SPA/SSR fallback to /_ssr
