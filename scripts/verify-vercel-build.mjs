@@ -10,7 +10,9 @@ const required = [
   ".vercel/output",
   ".vercel/output/config.json",
   ".vercel/output/static",
+  ".vercel/output/static/index.html",
   "output",
+  "output/index.html",
 ];
 
 let ok = true;
@@ -24,17 +26,17 @@ for (const rel of required) {
   }
 }
 
-// Functions dir is required for SSR
+// This deployment is intentionally static. Reintroducing functions brings back
+// the runtime 500 / FUNCTION_INVOCATION_FAILED failure mode.
 const functionsDir = join(outDir, "functions");
-if (!existsSync(functionsDir)) {
-  console.log("[verify-vercel-build] OK: no SSR functions emitted; static SPA fallback will be used");
-} else {
+if (existsSync(functionsDir)) {
   const fns = readdirSync(functionsDir).filter((f) => f.endsWith(".func"));
-  if (fns.length === 0) {
-    console.log("[verify-vercel-build] OK: no *.func directories emitted; static SPA fallback will be used");
-  } else {
-    console.log(`[verify-vercel-build] OK: functions (${fns.join(", ")})`);
+  if (fns.length > 0) {
+    console.error(`[verify-vercel-build] FOUND UNEXPECTED FUNCTIONS: ${fns.join(", ")}`);
+    ok = false;
   }
+} else {
+  console.log("[verify-vercel-build] OK: no serverless functions emitted; static SPA fallback will be used");
 }
 
 // Static assets sanity check
