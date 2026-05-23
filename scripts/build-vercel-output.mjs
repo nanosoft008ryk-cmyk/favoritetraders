@@ -92,13 +92,36 @@ copyClientBuild(distClient, staticDir);
 // 2. Copy SSR bundle into the function directory when Vite emitted one.
 if (hasServerBuild) {
   cpSync(distServer, fnDir, { recursive: true });
+  assertNoBareRuntimeImports(fnDir);
 }
 
-// 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls server.fetch
+// 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls the TanStack handler.
 if (hasServerBuild) {
-  const adapter = `import { createServer } from "node:http";
-import { Readable } from "node:stream";
-import serverEntry from "./server.js";
+  const adapter = `import { Readable } from "node:stream";
+
+let serverEntryPromise;
+
+function formatError(error) {
+  if (error instanceof Error) return error.stack || error.message;
+  try { return JSON.stringify(error); } catch { return String(error); }
+}
+
+async function loadServerEntry() {
+  if (!serverEntryPromise) {
+    serverEntryPromise = import("./server.js").then((mod) => {
+      const candidate = mod.default ?? mod;
+      if (typeof candidate === "function") return candidate;
+      if (candidate && typeof candidate.fetch === "function") return (request) => candidate.fetch(request);
+      const keys = Object.keys(mod).join(", ") || "<none>";
+      throw new Error(\`TanStack server bundle did not export a request handler. Export keys: \${keys}\`);
+    }).catch((error) => {
+      console.error("[ssr-adapter] failed to import ./server.js", formatError(error));
+      serverEntryPromise = undefined;
+      throw error;
+    });
+  }
+  return serverEntryPromise;
+}
 
 async function nodeReqToWebRequest(req) {
   const proto = req.headers["x-forwarded-proto"] || "https";
@@ -135,12 +158,17 @@ async function writeWebResponse(webRes, res) {
 
 export default async function handler(req, res) {
   try {
+    const handleRequest = await loadServerEntry();
     const request = await nodeReqToWebRequest(req);
-    const response = await serverEntry.fetch(request);
+    const response = await handleRequest(request);
+    if (!(response instanceof Response)) {
+      throw new Error(\`TanStack server handler returned \${Object.prototype.toString.call(response)} instead of a Web Response\`);
+    }
     await writeWebResponse(response, res);
   } catch (err) {
-    console.error("[ssr-adapter] error:", err);
+    console.error("[ssr-adapter] function invocation failed", formatError(err));
     res.statusCode = 500;
+    res.setHeader("content-type", "text/plain; charset=utf-8");
     res.end("Internal Server Error");
   }
 }
