@@ -27,144 +27,18 @@ function copyClientBuild(src, dest) {
   }
 }
 
-function isInside(parent, child) {
-  const rel = relative(parent, child);
-  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
-}
-
 if (!distClient) {
   console.error("[build-vercel-output] client build missing — expected dist/client/assets or dist/assets after `vite build`.");
   process.exit(1);
 }
-const hasServerBuild = existsSync(join(distServer, "server.js"));
 
 // Clean previous output
 rmSync(outDir, { recursive: true, force: true });
 rmSync(legacyOutputDir, { recursive: true, force: true });
 mkdirSync(staticDir, { recursive: true });
-if (hasServerBuild) {
-  mkdirSync(fnDir, { recursive: true });
-}
 
 // 1. Copy client assets -> static/
 copyClientBuild(distClient, staticDir);
-
-// 2. Copy SSR bundle into the function directory when Vite emitted one.
-if (hasServerBuild) {
-  cpSync(distServer, fnDir, { recursive: true });
-}
-
-// 3. Adapter entry: converts Node req/res <-> Web Request/Response and calls the TanStack handler.
-if (hasServerBuild) {
-  const adapter = String.raw`import { Readable } from "node:stream";
-
-let serverEntryPromise;
-
-function formatError(error) {
-  if (error instanceof Error) return error.stack || error.message;
-  try { return JSON.stringify(error); } catch { return String(error); }
-}
-
-async function loadServerEntry() {
-  if (!serverEntryPromise) {
-    serverEntryPromise = import("./server.js").then((mod) => {
-      const candidate = mod.default ?? mod;
-      if (typeof candidate === "function") return candidate;
-      if (candidate && typeof candidate.fetch === "function") return (request) => candidate.fetch(request);
-      const keys = Object.keys(mod).join(", ") || "<none>";
-      throw new Error("TanStack server bundle did not export a request handler. Export keys: " + keys);
-    }).catch((error) => {
-      console.error("[ssr-adapter] failed to import ./server.js", formatError(error));
-      serverEntryPromise = undefined;
-      throw error;
-    });
-  }
-  return serverEntryPromise;
-}
-
-async function nodeReqToWebRequest(req) {
-  const proto = req.headers["x-forwarded-proto"] || "https";
-  const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
-  const url = new URL(req.url || "/", proto + "://" + host);
-  const headers = new Headers();
-  for (const [k, v] of Object.entries(req.headers)) {
-    if (v === undefined) continue;
-    if (Array.isArray(v)) { for (const vv of v) headers.append(k, vv); }
-    else headers.set(k, String(v));
-  }
-  const hasBody = req.method && !["GET", "HEAD"].includes(req.method.toUpperCase());
-  return new Request(url, {
-    method: req.method,
-    headers,
-    body: hasBody ? Readable.toWeb(req) : undefined,
-    // @ts-ignore — duplex required for streaming bodies
-    duplex: hasBody ? "half" : undefined,
-  });
-}
-
-async function writeWebResponse(webRes, res) {
-  res.statusCode = webRes.status;
-  webRes.headers.forEach((value, key) => { res.setHeader(key, value); });
-  if (!webRes.body) { res.end(); return; }
-  const reader = webRes.body.getReader();
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    res.write(value);
-  }
-  res.end();
-}
-
-export default async function handler(req, res) {
-  try {
-    const handleRequest = await loadServerEntry();
-    const request = await nodeReqToWebRequest(req);
-    const response = await handleRequest(request);
-    if (!(response instanceof Response)) {
-      throw new Error("TanStack server handler returned " + Object.prototype.toString.call(response) + " instead of a Web Response");
-    }
-    await writeWebResponse(response, res);
-  } catch (err) {
-    console.error("[ssr-adapter] function invocation failed", formatError(err));
-    res.statusCode = 500;
-    res.setHeader("content-type", "text/plain; charset=utf-8");
-    res.end("Internal Server Error");
-  }
-}
-`;
-  writeFileSync(join(fnDir, "index.mjs"), adapter);
-
-  // 4. Function config
-  writeFileSync(
-    join(fnDir, ".vc-config.json"),
-    JSON.stringify(
-      {
-        runtime: "nodejs20.x",
-        handler: "index.mjs",
-        launcherType: "Nodejs",
-        shouldAddHelpers: false,
-        supportsResponseStreaming: true,
-      },
-      null,
-      2,
-    ),
-  );
-
-  const trace = await nodeFileTrace([join(fnDir, "index.mjs")], {
-    base: root,
-    processCwd: root,
-  });
-  let tracedCount = 0;
-  for (const file of trace.fileList) {
-    const src = join(root, file);
-    if (!existsSync(src) || isInside(fnDir, src)) continue;
-    const dest = join(fnDir, file);
-    mkdirSync(dirname(dest), { recursive: true });
-    cpSync(src, dest, { recursive: true });
-    tracedCount += 1;
-  }
-  console.log(`[build-vercel-output] traced ${tracedCount} runtime dependency files into _ssr.func`);
-}
 
 // 5. Build Output config — filesystem first, then SPA/SSR fallback to /_ssr
 const config = {
